@@ -1,4 +1,4 @@
-# universaltreebalance
+# RUtreebalance
 
 Robust, universal tree balance indices.
 
