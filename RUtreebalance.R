@@ -36,8 +36,10 @@ find_root <- function(edges) {
 # get_subtree_sizes(tree1)
 get_subtree_sizes <- function(tree,i=NULL,Adj=NULL,Col=NULL,Cumul=NULL,is_leaf=NULL){
   n<-length(tree$Identity)
+  has_pops <- FALSE
+  if("Population" %in% colnames(tree)) has_pops <- TRUE
   if(is.null(Adj)) Adj <- get_Adj(tree)
-  if(is.null(i)) i <- find_root(tree[,1:2])
+  if(is.null(i)) i <- which(tree$Identity == find_root(tree[,1:2]))
   if(is.null(Col)) {
     Col <- rep("w",n)
     names(Col) <- unique(tree$Identity)
@@ -60,7 +62,11 @@ get_subtree_sizes <- function(tree,i=NULL,Adj=NULL,Col=NULL,Cumul=NULL,is_leaf=N
     }
   }
   Col[i] <- "b"
-  Cumul[i] <- tree$Population[which(tree$Identity == i)] + sum(Cumul[Adj[[i]]])
+  if(has_pops) {
+    Cumul[i] <- tree$Population[i] + sum(Cumul[Adj[[i]]])
+  } else {
+    Cumul[i] <- ifelse(is_leaf[i] == TRUE, 1, 0) + sum(Cumul[Adj[[i]]])
+  }
   return(list("colour"=Col,"cumulative"=Cumul,"is_leaf"=is_leaf))
 }
 
@@ -74,9 +80,9 @@ get_subtree_sizes <- function(tree,i=NULL,Adj=NULL,Col=NULL,Cumul=NULL,is_leaf=N
 get_Adj <- function(tree) {
   n<-length(tree$Identity)
   Adj <- vector(mode = "list", length = n)
-  names(Adj) <- unique(tree$Identity)
   for (i in 1:n) if(tree$Parent[i] != tree$Identity[i]) {
-    Adj[[tree$Parent[i]]] <- append(Adj[[tree$Parent[i]]], tree$Identity[i])
+    p <- which(tree$Identity == tree$Parent[i])
+    Adj[[p]] <- append(Adj[[p]], i)
   }
   return(Adj)
 }
@@ -109,17 +115,15 @@ get_Adj <- function(tree) {
 J1_index <- function(tree, q = 1) {
   n<-length(tree$Identity)
   if (n<=1) return(0)
-  if(!("Population" %in% colnames(tree))) tree$Population <- rep(0, n)
   Adj <- get_Adj(tree) # adjacency list
   subtree_sizes <- get_subtree_sizes(tree, Adj = Adj) # get the list of all subtree sizes
   Cumul <- subtree_sizes$cumulative # subtree sizes, including the root
   eff_int_nodes <- which(!subtree_sizes$is_leaf) # vector of internal nodes
   leaves <- which(subtree_sizes$is_leaf) # vector of leaves
   # if population sizes are missing then assign size 0 to internal nodes, and size 1 to leaves:
-  if(sum(tree$Population) == 0) {
+  if(!("Population" %in% colnames(tree))) {
+    tree$Population <- rep(0, n)
     tree$Population[leaves] <- 1
-    subtree_sizes <- get_subtree_sizes(tree, Adj = Adj)
-    Cumul <- subtree_sizes$cumulative
   }
   J <- 0
   Star <- Cumul - tree$Population # subtree sizes, excluding the root
