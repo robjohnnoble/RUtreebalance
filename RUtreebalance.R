@@ -87,7 +87,8 @@ get_Adj <- function(tree) {
   return(Adj)
 }
 
-# Calculate tree balance index J^1.
+# Calculate tree balance index J^1 (when nonrootdomfactor = FALSE) or
+# J^{1c} (when nonrootdomfactor = TRUE).
 # If population sizes are missing then the function assigns
 # size 0 to internal nodes, and size 1 to leaves.
 # 
@@ -112,7 +113,7 @@ get_Adj <- function(tree) {
 #                        Identity = 1:31,
 #                        Population = c(rep(0, 15), rep(1, 16)))
 # J1_index(sym_tree)
-J1_index <- function(tree, q = 1) {
+J1_index <- function(tree, q = 1, nonrootdomfactor = FALSE) {
   n<-length(tree$Identity)
   if (n<=1) return(0)
   Adj <- get_Adj(tree) # adjacency list
@@ -146,12 +147,18 @@ J1_index <- function(tree, q = 1) {
             }
           }
         }
+        # non-root dominance factor:
+        if(nonrootdomfactor) {
+          h_factor <- Star[i] / Cumul[i]
+        } else {
+          h_factor <- 1
+        }
         # normalize the sum of balance scores, adjust for non-root dominance, 
         # and then add the result to the index
         if(q == 1) {
-          J <- J + Star[i]^2 / Cumul[i] * K / log(eff_children)
+          J <- J + h_factor * Star[i] * K / log(eff_children)
         } else {
-          J <- J + Star[i]^2 / Cumul[i] * (1 - K) * eff_children^(q - 1) / (eff_children^(q - 1) - 1)
+          J <- J + h_factor * Star[i] * (1 - K) * eff_children^(q - 1) / (eff_children^(q - 1) - 1)
         }
       }
     }
