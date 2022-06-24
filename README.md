@@ -16,7 +16,7 @@ J1_index(phylo_tree)
 edges_tree <- data.frame(Parent = c(4,3,4,6,6), Identity = c(5,1,6,2,3))
 J1_index(edges_tree)
 
-edges_tree_with_root <- data.frame(Parent = c(4, 4,3,4,6,6), Identity = c(4, 5,1,6,2,3))
+edges_tree_with_root <- data.frame(Parent = c(4,4,3,4,6,6), Identity = c(4,5,1,6,2,3))
 J1_index(edges_tree_with_root)
 
 edges_tree_with_pops <- data.frame(Parent = c(4,3,4,6,6), Identity = c(5,1,6,2,3), Population = c(1,1,0,1,0))
