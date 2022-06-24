@@ -92,10 +92,12 @@ get_Adj <- function(tree) {
 # If population sizes are missing then the function assigns
 # size 0 to internal nodes, and size 1 to leaves.
 # 
-# Example using phylo object as input:
+# Examples using phylo object as input:
 # require(ape)
 # phylo_tree <- read.tree(text="((a:0.1)A:0.5,(b1:0.2,b2:0.1)B:0.2);")
 # J1_index(phylo_tree)
+# phylo_tree2 <- read.tree(text='((A, B), ((C, D), (E, F)));')
+# J1_index(phylo_tree2)
 # 
 # Examples using edges lists as input:
 # tree1 <- data.frame(Parent = c(1,1,1,1,2,3,4),
