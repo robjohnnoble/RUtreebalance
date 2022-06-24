@@ -4,7 +4,7 @@ Robust, universal tree balance indices.
 
 Publication: https://doi.org/10.1093/sysbio/syac027
 
-The tree must be provided either as a phylo object or as a dataframe with column names Parent, Identity and (optionally) Population.
+The tree must be provided either as a `phylo` object or as a dataframe with column names Parent, Identity and (optionally) Population. The latter is similar to `tree$edge`, where `tree` is a `phylo` object; the differences are in class (dataframe versus matrix) and column names.
 
 For example, here are four ways of inputting the same tree:
 
