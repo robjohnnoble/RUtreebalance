@@ -92,7 +92,12 @@ get_Adj <- function(tree) {
 # If population sizes are missing then the function assigns
 # size 0 to internal nodes, and size 1 to leaves.
 # 
-# Examples:
+# Example using phylo object as input:
+# require(ape)
+# phylo_tree <- read.tree(text="((a:0.1)A:0.5,(b1:0.2,b2:0.1)B:0.2);")
+# J1_index(phylo_tree)
+# 
+# Examples using edges lists as input:
 # tree1 <- data.frame(Parent = c(1,1,1,1,2,3,4),
 #                     Identity = 1:7,
 #                     Population = c(1, rep(5, 6)))
@@ -109,11 +114,37 @@ get_Adj <- function(tree) {
 #                        Identity = 1:31,
 #                        Population = c(rep(0, 15), rep(1, 16)))
 # J1_index(cat_tree)
-# sym_tree <- data.frame(Parent = c(1, rep(1:15, each = 2)),
+#
+# If population sizes are omitted then internal nodes are assigned population size zero
+# and leaves are assigned population size one:
+# sym_tree1 <- data.frame(Parent = c(1, rep(1:15, each = 2)),
 #                        Identity = 1:31,
 #                        Population = c(rep(0, 15), rep(1, 16)))
-# J1_index(sym_tree)
+# sym_tree2 <- data.frame(Parent = c(1, rep(1:15, each = 2)),
+#                        Identity = 1:31)
+# all.equal(J1_index(sym_tree1), J1_index(sym_tree1))
 J1_index <- function(tree, q = 1, nonrootdomfactor = FALSE) {
+  
+  if(!is.na(tree)[1]) {
+    if("phylo" %in% class(tree)) { # convert from phylo object to appropriate data frame
+      tree <- tree$edge
+      tree <- as.data.frame(tree)
+      colnames(tree) <- c("Parent", "Identity")
+    }
+    tree <- na.omit(tree) # remove any rows containing NA
+    if(is.factor(tree$Parent)) tree$Parent <- levels(tree$Parent)[tree$Parent]
+    if(is.factor(tree$Identity)) tree$Identity <- levels(tree$Identity)[tree$Identity]
+    start <- setdiff(tree$Parent, tree$Identity)
+    if(length(start) > 0) { # add row for root node
+      if("Population" %in% colnames(tree)) {
+        root_row <- data.frame(Parent = start, Identity = start, Population = 0)
+        message("Assigning Population = 0 to the root node")
+        }
+      else root_row <- data.frame(Parent = start, Identity = start)
+      tree <- rbind(root_row, tree)
+    }
+  }
+  
   n<-length(tree$Identity)
   if (n<=1) return(0)
   Adj <- get_Adj(tree) # adjacency list
@@ -125,6 +156,7 @@ J1_index <- function(tree, q = 1, nonrootdomfactor = FALSE) {
   if(!("Population" %in% colnames(tree))) {
     tree$Population <- rep(0, n)
     tree$Population[leaves] <- 1
+    message("Assigning Population = 0 to internal nodes and Population = 1 to leaves")
   }
   J <- 0
   Star <- Cumul - tree$Population # subtree sizes, excluding the root
