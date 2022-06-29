@@ -167,6 +167,7 @@ J1_index <- function(tree, q = 1, nonrootdomfactor = FALSE) {
     tree$Population[leaves] <- 1
     message("Assigning Population = 0 to internal nodes and Population = 1 to leaves")
   }
+  if(sum(tree$Population <= 0)) stop("At least one node must have Population > 0")
   J <- 0
   Star <- Cumul - tree$Population # subtree sizes, excluding the root
   for (i in 1:n){ # loop over all nodes
@@ -196,10 +197,12 @@ J1_index <- function(tree, q = 1, nonrootdomfactor = FALSE) {
         }
         # normalize the sum of balance scores, adjust for non-root dominance, 
         # and then add the result to the index
-        if(q == 1) {
-          J <- J + h_factor * Star[i] * K / log(eff_children)
-        } else {
-          J <- J + h_factor * Star[i] * (1 - K) * eff_children^(q - 1) / (eff_children^(q - 1) - 1)
+        if(eff_children > 1) { # exclude nodes that have only one child with size greater than zero
+          if(q == 1) {
+            J <- J + h_factor * Star[i] * K / log(eff_children)
+          } else {
+            J <- J + h_factor * Star[i] * (1 - K) * eff_children^(q - 1) / (eff_children^(q - 1) - 1)
+          }
         }
       }
     }
