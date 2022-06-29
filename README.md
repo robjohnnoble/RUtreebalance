@@ -10,7 +10,7 @@ The dataframe may (but isn't required to) include a row for the root node.
 
 If population sizes are omitted then internal nodes will be assigned population size zero and leaves will be assigned population size one.
 
-For example, here are four ways of inputting the same tree with internal nodes labelled 4, 5, 6 and leaves 1, 2, 3:
+For example, here are four ways of inputting the same tree with internal nodes labelled 4 (the root), 5 and 6, and leaves 1, 2 and 3:
 
 ``` r
 # phylo object read from Newick format:
@@ -30,3 +30,10 @@ J1_index(edges_tree_with_root)
 edges_tree_with_pops <- data.frame(Parent = c(4,5,4,6,6), Identity = c(5,1,6,2,3), Population = c(0,1,0,1,1))
 J1_index(edges_tree_with_pops)
 ```
+
+     ____5____1
+    |
+    4     ____2
+    |    |
+    |____6
+         |____3
