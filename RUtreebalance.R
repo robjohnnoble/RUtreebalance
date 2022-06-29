@@ -35,6 +35,7 @@ find_root <- function(edges) {
 #                     Population = c(1, rep(5, 6)))
 # get_subtree_sizes(tree1)
 get_subtree_sizes <- function(tree,i=NULL,Adj=NULL,Col=NULL,Cumul=NULL,is_leaf=NULL){
+  tree <- add_root_row(tree)
   n<-length(tree$Identity)
   has_pops <- FALSE
   if("Population" %in% colnames(tree)) has_pops <- TRUE
@@ -87,6 +88,20 @@ get_Adj <- function(tree) {
   return(Adj)
 }
 
+# Add a row to the edges list to represent the root node (if not already present)
+add_root_row <- function(tree) {
+  start <- setdiff(tree$Parent, tree$Identity)
+  if(length(start) > 0) { # add row for root node
+    if("Population" %in% colnames(tree)) {
+      root_row <- data.frame(Parent = start, Identity = start, Population = 0)
+      message("Assigning Population = 0 to the root node")
+    }
+    else root_row <- data.frame(Parent = start, Identity = start)
+    tree <- rbind(root_row, tree)
+  }
+  return(tree)
+}
+
 # Calculate tree balance index J^1 (when nonrootdomfactor = FALSE) or
 # J^{1c} (when nonrootdomfactor = TRUE).
 # If population sizes are missing then the function assigns
@@ -136,15 +151,7 @@ J1_index <- function(tree, q = 1, nonrootdomfactor = FALSE) {
     tree <- na.omit(tree) # remove any rows containing NA
     if(is.factor(tree$Parent)) tree$Parent <- levels(tree$Parent)[tree$Parent]
     if(is.factor(tree$Identity)) tree$Identity <- levels(tree$Identity)[tree$Identity]
-    start <- setdiff(tree$Parent, tree$Identity)
-    if(length(start) > 0) { # add row for root node
-      if("Population" %in% colnames(tree)) {
-        root_row <- data.frame(Parent = start, Identity = start, Population = 0)
-        message("Assigning Population = 0 to the root node")
-        }
-      else root_row <- data.frame(Parent = start, Identity = start)
-      tree <- rbind(root_row, tree)
-    }
+    tree <- add_root_row(tree)
   }
   
   n<-length(tree$Identity)
