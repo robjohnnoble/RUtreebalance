@@ -15,7 +15,7 @@ For example, here are four ways of inputting the same tree:
 ``` r
 # phylo object read from Newick format:
 require(ape)
-phylo_tree <- read.tree(text="((a:0.1)A:0.5,(b1:0.2,b2:0.1)B:0.2);")
+phylo_tree <- read.tree(text="((a)A,(b1,b2)B);")
 J1_index(phylo_tree)
 
 # dataframe omitting population sizes:
