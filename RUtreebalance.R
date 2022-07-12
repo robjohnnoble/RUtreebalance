@@ -91,6 +91,7 @@ get_Adj <- function(tree) {
 # Add a row to the edges list to represent the root node (if not already present)
 add_root_row <- function(tree) {
   start <- setdiff(tree$Parent, tree$Identity)
+  if(length(start) > 1) stop("Input dataframe is missing one or more rows")
   if(length(start) > 0) { # add row for root node
     if("Population" %in% colnames(tree)) {
       root_row <- data.frame(Parent = start, Identity = start, Population = 0)
